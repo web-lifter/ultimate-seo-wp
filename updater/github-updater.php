@@ -163,7 +163,7 @@ function my_plugin_purge_cache_after_update($upgrader, $options) {
  * - Documentation link (GitHub Wiki)
  */
 function my_plugin_add_custom_links($plugin_meta, $plugin_file) {
-    if ($plugin_file !== plugin_basename(__FILE__)) {
+    if ($plugin_file !== MY_PLUGIN_FILE) {
         return $plugin_meta;
     }
 
@@ -177,7 +177,7 @@ function my_plugin_add_custom_links($plugin_meta, $plugin_file) {
     );
 
     $sponsor_link = sprintf(
-        '<a href="%s" target="_blank">Sponsor Us</a>',
+        '<a href="%s" target="_blank">Sponsorship</a>',
         esc_url('https://github.com/sponsors/web-lifter')
     );
 
