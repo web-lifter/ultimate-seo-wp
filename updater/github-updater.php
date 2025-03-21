@@ -89,7 +89,6 @@ function my_plugin_fetch_github_release() {
         'timeout' => 10,
         'headers' => [
             'User-Agent' => 'WordPress',
-            'Authorization' => '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'
         ]
     ]);    
 
