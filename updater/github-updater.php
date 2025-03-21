@@ -64,6 +64,7 @@ function my_plugin_check_for_updates($transient) {
 
     $installed_version = get_plugin_data(WP_PLUGIN_DIR . '/' . MY_PLUGIN_FILE)['Version'];
 
+    $installed_version = get_plugin_data(WP_PLUGIN_DIR . '/' . MY_PLUGIN_FILE)['Version'];
     if (version_compare($installed_version, $remote->version, '<')) {
         $res = new stdClass();
         $res->slug = MY_PLUGIN_SLUG;
@@ -86,8 +87,11 @@ function my_plugin_fetch_github_release() {
 
     $response = wp_remote_get(GITHUB_API_URL, [
         'timeout' => 10,
-        'headers' => ['User-Agent' => 'WordPress']
-    ]);
+        'headers' => [
+            'User-Agent' => 'WordPress',
+            'Authorization' => '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'
+        ]
+    ]);    
 
     if (is_wp_error($response)) return false;
 
@@ -151,3 +155,45 @@ function my_plugin_purge_cache_after_update($upgrader, $options) {
         delete_transient(TRANSIENT_KEY);
     }
 }
+
+/**
+ * Add custom links to the plugin manager page.
+ *
+ * - View Details (opens plugin info modal)
+ * - GitHub Sponsors link
+ * - Documentation link (GitHub Wiki)
+ */
+function my_plugin_add_custom_links($plugin_meta, $plugin_file) {
+    if ($plugin_file !== plugin_basename(__FILE__)) {
+        return $plugin_meta;
+    }
+
+    // GitHub repository slug
+    $github_repo = 'web-lifter/ultimate-seo-wp';
+
+    // Custom links
+    $view_details_link = sprintf(
+        '<a href="%s" class="thickbox" title="Ultimate SEO WP Details">View Details</a>',
+        esc_url(admin_url('plugin-install.php?tab=plugin-information&plugin=ultimate-seo-wp&TB_iframe=true&width=600&height=550'))
+    );
+
+    $sponsor_link = sprintf(
+        '<a href="%s" target="_blank">Sponsor Us</a>',
+        esc_url('https://github.com/sponsors/web-lifter')
+    );
+
+    $docs_link = sprintf(
+        '<a href="%s" target="_blank">Docs</a>',
+        esc_url('https://github.com/' . $github_repo . '/wiki')
+    );
+
+    // Add links to the plugin meta
+    $plugin_meta[] = $view_details_link;
+    $plugin_meta[] = $sponsor_link;
+    $plugin_meta[] = $docs_link;
+
+    return $plugin_meta;
+}
+
+// Hook into WordPress to modify plugin row meta links
+add_filter('plugin_row_meta', 'my_plugin_add_custom_links', 10, 2);
