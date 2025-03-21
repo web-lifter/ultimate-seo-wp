@@ -24,7 +24,7 @@ if (!function_exists('ultimate_seo_is_noindex')) {
  */
 if (!function_exists('ultimate_seo_add_hreflang')) {
     function ultimate_seo_add_hreflang() {
-        if (get_option('ultimate_seo_enable_hreflang', 1) != 1) return;
+        if (get_option('custom_hreflang_enabled', 'yes') !== 'yes') return;
         if (is_admin() || wp_doing_ajax()) return;
 
         $excluded_pages = (array) get_option('ultimate_seo_excluded_hreflang_pages', []);

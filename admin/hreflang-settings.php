@@ -50,11 +50,27 @@ function ultimate_seo_register_hreflang_settings() {
     add_settings_section('ultimate_seo_hreflang_section', 'Hreflang Configuration', null, 'ultimate_seo_hreflang_settings');
 
     add_settings_field(
+        'custom_hreflang_enabled',
+        'Enable Hreflang Tags',
+        'custom_hreflang_enabled_callback',
+        'custom-hreflang',
+        'general_section'
+    );
+
+    add_settings_field(
         'ultimate_seo_hreflang_language',
         'Default Hreflang Language',
         'ultimate_seo_hreflang_language_callback',
         'ultimate_seo_hreflang_settings',
         'ultimate_seo_hreflang_section'
+    );
+
+    add_settings_field(
+        'custom_canonical_enabled',
+        'Enable Canonical URLs',
+        'custom_canonical_enabled_callback',
+        'custom-hreflang',
+        'general_section'
     );
 
     add_settings_field(
@@ -71,9 +87,29 @@ add_action('admin_init', 'ultimate_seo_register_hreflang_settings');
  * Callback for setting default hreflang language
  */
 if (!function_exists('ultimate_seo_hreflang_language_callback')) {
+    function custom_hreflang_enabled_callback() {
+        $option = get_option('custom_hreflang_enabled', 'yes');
+        echo '<input type="checkbox" name="custom_hreflang_enabled" value="yes" ' . checked('yes', $option, false) . '> Enable';
+    }
+}
+
+/**
+ * Callback for setting default hreflang language
+ */
+if (!function_exists('ultimate_seo_hreflang_language_callback')) {
     function ultimate_seo_hreflang_language_callback() {
         $language = get_option('ultimate_seo_hreflang_language', 'en');
         echo "<input type='text' name='ultimate_seo_hreflang_language' value='" . esc_attr($language) . "' />";
+    }
+}
+
+/**
+ * Callback for enabling canonical urls
+ */
+if (!function_exists('ultimate_seo_hreflang_language_callback')) {
+    function custom_canonical_enabled_callback() {
+        $option = get_option('custom_canonical_enabled', 'yes');
+        echo '<input type="checkbox" name="custom_canonical_enabled" value="yes" ' . checked('yes', $option, false) . '> Enable Canonical URLs';
     }
 }
 
