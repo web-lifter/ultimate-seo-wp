@@ -1,0 +1,11 @@
+{
+    "name": "Ultimate SEO WP",
+    "slug": "ultimate-seo-wp",
+    "version": "1.0.0",
+    "download_url": "https://github.com/web-lifter/ultimate-seo-wp/archive/refs/heads/main.zip",
+    "requires": "5.0",
+    "tested": "6.4",
+    "requires_php": "7.4",
+    "author": "Web Lifter",
+    "homepage": "https://weblifter.com.au"
+  }
