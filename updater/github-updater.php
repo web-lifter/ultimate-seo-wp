@@ -13,6 +13,30 @@ const GITHUB_API_URL = 'https://api.github.com/repos/' . MY_GITHUB_REPO . '/rele
 const TRANSIENT_KEY = 'my_plugin_update_cache';
 const ULTIMATE_SEO_WP_UPDATE_URL = 'https://raw.githubusercontent.com/web-lifter/ultimate-seo-wp/main/updater/updates.json';
 
+add_action('wp_ajax_fetch_plugin_update_json', 'fetch_plugin_update_json_callback');
+add_action('wp_ajax_nopriv_fetch_plugin_update_json', 'fetch_plugin_update_json_callback'); // Allow non-logged-in users to access it
+
+function fetch_plugin_update_json_callback() {
+    $response = wp_remote_get(ULTIMATE_SEO_WP_UPDATE_URL, ['timeout' => 10]);
+
+    if (is_wp_error($response)) {
+        wp_send_json_error(['error' => 'Failed to fetch update JSON']);
+    }
+
+    $body = wp_remote_retrieve_body($response);
+
+    if (!$body) {
+        wp_send_json_error(['error' => 'Empty response from update JSON']);
+    }
+
+    $json = json_decode($body, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        wp_send_json_error(['error' => 'Invalid JSON format']);
+    }
+
+    wp_send_json_success($json);
+}
+
 /**
  * Initialize the updater functionality.
  */
