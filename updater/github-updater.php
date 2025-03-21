@@ -10,6 +10,8 @@ const MY_PLUGIN_SLUG = 'ultimate-seo-wp';
 const MY_PLUGIN_FILE = 'ultimate-seo-wp/ultimate-seo-wp.php';
 const MY_GITHUB_REPO = 'web-lifter/ultimate-seo-wp'; // Change to your GitHub repo
 const GITHUB_API_URL = 'https://api.github.com/repos/' . MY_GITHUB_REPO . '/releases/latest';
+const TRANSIENT_KEY = 'my_plugin_update_cache';
+const ULTIMATE_SEO_WP_UPDATE_URL = 'https://raw.githubusercontent.com/web-lifter/ultimate-seo-wp/main/updater/updates.json';
 
 /**
  * Initialize the updater functionality.
@@ -34,16 +36,17 @@ function my_plugin_check_for_updates($transient) {
     if (empty($transient->checked)) return $transient;
 
     $remote = my_plugin_fetch_github_release();
-    if (
-        $remote &&
-        version_compare(get_plugin_data(WP_PLUGIN_DIR . '/' . MY_PLUGIN_FILE)['Version'], $remote->version, '<')
-    ) {
+    if (!$remote) return $transient;
+
+    $installed_version = get_plugin_data(WP_PLUGIN_DIR . '/' . MY_PLUGIN_FILE)['Version'];
+
+    if (version_compare($installed_version, $remote->version, '<')) {
         $res = new stdClass();
         $res->slug = MY_PLUGIN_SLUG;
         $res->plugin = MY_PLUGIN_FILE;
         $res->new_version = $remote->version;
         $res->package = $remote->download_url;
-        
+
         $transient->response[$res->plugin] = $res;
     }
     return $transient;
@@ -53,16 +56,45 @@ function my_plugin_check_for_updates($transient) {
  * Fetch release data from GitHub API.
  */
 function my_plugin_fetch_github_release() {
-    $response = wp_remote_get(GITHUB_API_URL, ['timeout' => 10, 'headers' => ['User-Agent' => 'WordPress']]);
+    // Use transient caching to reduce API calls
+    $cached = get_transient(TRANSIENT_KEY);
+    if ($cached) return $cached;
+
+    $response = wp_remote_get(GITHUB_API_URL, [
+        'timeout' => 10,
+        'headers' => ['User-Agent' => 'WordPress']
+    ]);
+
     if (is_wp_error($response)) return false;
 
     $data = json_decode(wp_remote_retrieve_body($response));
     if (!isset($data->tag_name)) return false;
 
-    return (object) [
+    // Find the correct download URL from assets
+    $download_url = '';
+    if (!empty($data->assets)) {
+        foreach ($data->assets as $asset) {
+            if (strpos($asset->name, '.zip') !== false) {
+                $download_url = $asset->browser_download_url;
+                break;
+            }
+        }
+    }
+
+    // If no asset found, fallback to the auto-generated GitHub zip (not recommended)
+    if (!$download_url) {
+        $download_url = "https://github.com/" . MY_GITHUB_REPO . "/archive/refs/tags/{$data->tag_name}.zip";
+    }
+
+    $release = (object) [
         'version' => ltrim($data->tag_name, 'v'),
-        'download_url' => $data->assets[0]->browser_download_url ?? ''
+        'download_url' => $download_url
     ];
+
+    // Cache the response for 12 hours
+    set_transient(TRANSIENT_KEY, $release, 12 * HOUR_IN_SECONDS);
+
+    return $release;
 }
 
 /**
@@ -79,7 +111,10 @@ function my_plugin_get_plugin_info($res, $action, $args) {
     $res->slug = MY_PLUGIN_SLUG;
     $res->version = $remote->version;
     $res->download_link = $remote->download_url;
-    $res->sections = ['description' => 'SEO plugin with sitemap and hreflang features.'];
+    $res->sections = [
+        'description' => 'SEO plugin with sitemap and hreflang features.',
+        'changelog' => 'Latest release available at: <a href="https://github.com/' . MY_GITHUB_REPO . '/releases" target="_blank">GitHub Releases</a>'
+    ];
 
     return $res;
 }
@@ -89,6 +124,6 @@ function my_plugin_get_plugin_info($res, $action, $args) {
  */
 function my_plugin_purge_cache_after_update($upgrader, $options) {
     if ($options['action'] === 'update' && $options['type'] === 'plugin') {
-        delete_transient('my_plugin_update_cache');
+        delete_transient(TRANSIENT_KEY);
     }
 }

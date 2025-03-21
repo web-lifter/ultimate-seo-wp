@@ -85,3 +85,30 @@ function ultimate_seo_serve_sitemap() {
         exit;
     }
 }
+
+
+/**
+ * Enqueue Global Admin Scripts
+ */
+function ultimate_seo_enqueue_admin_scripts($hook) {
+    if (strpos($hook, 'ultimate-seo-wp') === false) {
+        return;
+    }
+
+    // Enqueue AJAX Regenerate Sitemap Script (Only if Sitemap is Enabled)
+    if (get_option('ultimate_seo_enable_sitemap', 1)) {
+        wp_enqueue_script(
+            'ultimate-seo-regenerate-sitemap',
+            ULTIMATE_SEO_PLUGIN_URL . 'assets/regenerate-sitemap.js',
+            ['jquery'],
+            false,
+            true
+        );
+
+        wp_localize_script('ultimate-seo-regenerate-sitemap', 'ultimateSEOAjax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('ultimate_seo_nonce')
+        ]);
+    }
+}
+add_action('admin_enqueue_scripts', 'ultimate_seo_enqueue_admin_scripts');
