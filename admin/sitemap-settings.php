@@ -51,6 +51,7 @@ function ultimate_seo_register_sitemap_settings() {
     register_setting('ultimate_seo_sitemap_settings_group', 'ultimate_seo_excluded_pages');
     register_setting('ultimate_seo_sitemap_settings_group', 'ultimate_seo_excluded_categories');
     register_setting('ultimate_seo_sitemap_settings_group', 'ultimate_seo_excluded_tags');
+    register_setting('ultimate_seo_sitemap_settings_group', 'ultimate_seo_excluded_taxonomies');
 
     add_settings_section('ultimate_seo_sitemap_section', 'Sitemap Settings', null, 'ultimate_seo_sitemap_settings');
 
@@ -60,6 +61,7 @@ function ultimate_seo_register_sitemap_settings() {
     add_settings_field('ultimate_seo_excluded_pages', 'Exclude Specific Pages', 'ultimate_seo_excluded_pages_callback', 'ultimate_seo_sitemap_settings', 'ultimate_seo_sitemap_section');
     add_settings_field('ultimate_seo_excluded_categories', 'Exclude Specific Categories', 'ultimate_seo_excluded_categories_callback', 'ultimate_seo_sitemap_settings', 'ultimate_seo_sitemap_section');
     add_settings_field('ultimate_seo_excluded_tags', 'Exclude Specific Tags', 'ultimate_seo_excluded_tags_callback', 'ultimate_seo_sitemap_settings', 'ultimate_seo_sitemap_section');
+    add_settings_field('ultimate_seo_excluded_taxonomies', 'Exclude Specific Taxonomies', 'ultimate_seo_excluded_taxonomies_callback', 'ultimate_seo_sitemap_settings', 'ultimate_seo_sitemap_section');
 }
 add_action('admin_init', 'ultimate_seo_register_sitemap_settings');
 
@@ -109,6 +111,22 @@ function ultimate_seo_excluded_categories_callback() {
 }
 function ultimate_seo_excluded_tags_callback() { 
     ultimate_seo_generate_select_field('ultimate_seo_excluded_tags', get_terms(['taxonomy' => 'post_tag', 'hide_empty' => false]), 'term_id', 'name'); 
+}
+
+function ultimate_seo_excluded_taxonomies_callback() {
+    $taxonomies = get_taxonomies(['public' => true], 'objects');
+    $excluded_taxonomies = get_option('ultimate_seo_excluded_taxonomies', []);
+
+    if (!is_array($excluded_taxonomies)) {
+        $excluded_taxonomies = [];
+    }
+
+    echo "<select name='ultimate_seo_excluded_taxonomies[]' multiple style='width:100%; min-height:150px; resize:vertical;'>";
+    foreach ($taxonomies as $taxonomy) {
+        $selected = in_array($taxonomy->name, $excluded_taxonomies) ? 'selected' : '';
+        echo "<option value='{$taxonomy->name}' $selected>{$taxonomy->label}</option>";
+    }
+    echo "</select>";
 }
 
 /**

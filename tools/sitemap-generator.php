@@ -19,6 +19,7 @@ function ultimate_seo_generate_sitemap() {
     $excluded_pages = get_option('ultimate_seo_excluded_pages', []);
     $excluded_categories = get_option('ultimate_seo_excluded_categories', []);
     $excluded_tags = get_option('ultimate_seo_excluded_tags', []);
+    $excluded_taxonomies = get_option('ultimate_seo_excluded_taxonomies', []);
 
     // Ensure arrays
     $excluded_post_types = is_array($excluded_post_types) ? $excluded_post_types : [];
@@ -27,6 +28,7 @@ function ultimate_seo_generate_sitemap() {
     $excluded_pages = is_array($excluded_pages) ? $excluded_pages : [];
     $excluded_categories = is_array($excluded_categories) ? $excluded_categories : [];
     $excluded_tags = is_array($excluded_tags) ? $excluded_tags : [];
+    $excluded_taxonomies = is_array($excluded_taxonomies) ? $excluded_taxonomies : [];
 
     // Merge standard excluded post types with custom post types
     $excluded_post_types = array_merge($excluded_post_types, $excluded_cpts);
@@ -46,8 +48,22 @@ function ultimate_seo_generate_sitemap() {
         'post_status'    => 'publish',
         'numberposts'    => -1,
         'category__not_in' => $excluded_categories,
-        'tag__not_in'     => $excluded_tags
+        'tag__not_in'     => $excluded_tags,
+        'tax_query' => []
     ];
+
+    // Exclude terms from other taxonomies
+    foreach ($excluded_taxonomies as $taxonomy) {
+        $terms = get_terms(['taxonomy' => $taxonomy, 'fields' => 'ids', 'hide_empty' => false]);
+        if (!empty($terms) && !is_wp_error($terms)) {
+            $args['tax_query'][] = [
+                'taxonomy' => $taxonomy,
+                'field'    => 'term_id',
+                'terms'    => $terms,
+                'operator' => 'NOT IN',
+            ];
+        }
+    }
 
     $posts = get_posts($args);
     foreach ($posts as $post) {
@@ -85,7 +101,6 @@ function ultimate_seo_serve_sitemap() {
         exit;
     }
 }
-
 
 /**
  * Enqueue Global Admin Scripts
