@@ -147,7 +147,7 @@ add_action('admin_init', 'ultimate_seo_register_main_settings');
 if (!function_exists('ultimate_seo_enable_sitemap_callback')) {
     function ultimate_seo_enable_sitemap_callback() {
         $option = get_option('ultimate_seo_enable_sitemap', 1);
-        echo "<input type='checkbox' name='ultimate_seo_enable_sitemap' value='1' " . checked(1, $option, false) . " />";
+        echo "<label><input type='checkbox' name='ultimate_seo_enable_sitemap' value='1' " . checked(1, $option, false) . " /> Enable Sitemap</label>";
     }
 }
 
@@ -157,6 +157,6 @@ if (!function_exists('ultimate_seo_enable_sitemap_callback')) {
 if (!function_exists('ultimate_seo_enable_hreflang_callback')) {
     function ultimate_seo_enable_hreflang_callback() {
         $option = get_option('ultimate_seo_enable_hreflang', 1);
-        echo "<input type='checkbox' name='ultimate_seo_enable_hreflang' value='1' " . checked(1, $option, false) . " />";
+        echo "<label><input type='checkbox' name='ultimate_seo_enable_hreflang' value='1' " . checked(1, $option, false) . " /> Enable Sitemap</label>";
     }
 }
