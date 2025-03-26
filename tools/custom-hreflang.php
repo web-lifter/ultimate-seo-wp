@@ -19,12 +19,10 @@ if (!function_exists('ultimate_seo_is_noindex')) {
     }
 }
 
-/**
- * Add hreflang and canonical tags
- */
+<?php
 if (!function_exists('ultimate_seo_add_hreflang')) {
     function ultimate_seo_add_hreflang() {
-        if (get_option('custom_hreflang_enabled', 'yes') !== 'yes') return;
+        if (get_option('ultimate_seo_enable_hreflang', 1) != 1) return;
         if (is_admin() || wp_doing_ajax()) return;
 
         $excluded_pages = (array) get_option('ultimate_seo_excluded_hreflang_pages', []);
@@ -39,14 +37,25 @@ if (!function_exists('ultimate_seo_add_hreflang')) {
         // Add x-default
         echo '<link rel="alternate" hreflang="x-default" href="' . esc_url($current_url) . '">' . "\n";
 
+        // Add canonical tag if enabled
+        if (get_option('custom_canonical_enabled', 'yes') === 'yes' && !ultimate_seo_is_noindex()) {
+            echo '<link rel="canonical" href="' . esc_url($current_url) . '">' . "\n";
+        }
+
         if (!ultimate_seo_is_noindex()) {
-            if (function_exists('pll_get_post_translations')) {
-                $translations = pll_get_post_translations(get_the_ID());
+            // Retrieve translations using our custom Polylang-like functionality
+            $translations = get_post_meta(get_the_ID(), '_ultimate_seo_hreflang_translations', true);
+            if (!is_array($translations)) $translations = [];
+
+            if (!empty($translations)) {
                 foreach ($translations as $lang => $translated_post_id) {
                     $translated_url = get_permalink($translated_post_id);
                     $translated_url = user_trailingslashit($translated_url);
                     echo '<link rel="alternate" hreflang="' . esc_attr($lang) . '" href="' . esc_url($translated_url) . '">' . "\n";
                 }
+            } else {
+                // Fallback to default language if no translations exist
+                echo '<link rel="alternate" hreflang="' . esc_attr($global_hreflang) . '" href="' . esc_url($current_url) . '">' . "\n";
             }
         }
     }
