@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Ultimate SEO WP
  * Description: A lightweight and efficient SEO plugin for WordPress.
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: Web Lifter
  * Author URI: https://weblifter.com.au
  * License: GPL2 

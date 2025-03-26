@@ -1,8 +1,8 @@
 {
   "name": "Ultimate SEO WP",
   "slug": "ultimate-seo-wp",
-  "version": "1.0.5",
-  "download_url": "https://github.com/web-lifter/ultimate-seo-wp/releases/download/1.0.5/ultimate-seo-wp-1.0.5.zip",
+  "version": "1.0.6",
+  "download_url": "https://github.com/web-lifter/ultimate-seo-wp/releases/download/1.0.6/ultimate-seo-wp-1.0.6.zip",
   "requires": "5.0",
   "tested": "6.4",
   "requires_php": "7.4",
