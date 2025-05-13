@@ -5,7 +5,7 @@ Ultimate SEO WP is a WordPress plugin designed to optimise your site's SEO with 
 ## Features
 - **Automated Sitemap Generation**: Easily create and update XML sitemaps.
 - **Hreflang Support**: Manage international SEO with custom hreflang tags.
-- **SEO Optimization**: Various settings to enhance search engine visibility.
+- **SEO Optimisation**: Various settings to enhance search engine visibility.
 - **Auto-Updates**: Integrated update mechanism to pull the latest version from GitHub.
 
 ## Installation
